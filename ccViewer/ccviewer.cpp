@@ -177,6 +177,7 @@ ccViewer::~ccViewer()
 #endif
 }
 
+//yaoli
 void ccViewer::loadPlugins()
 {
 	//ui.menuPlugins->setEnabled(false);

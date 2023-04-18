@@ -20,6 +20,12 @@ find_package(Qt5OpenGL REQUIRED)
 find_package(Qt5OpenGLExtensions REQUIRED)
 find_package(Qt5Svg REQUIRED)
 
+find_package(PCL 1.7 REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS} include)
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
+ 
 include_directories(${Qt5OpenGL_INCLUDE_DIRS}
                     ${Qt5Widgets_INCLUDE_DIRS}
                     ${Qt5Core_INCLUDE_DIRS}
@@ -109,13 +115,13 @@ target_link_libraries( ${PROJECT_NAME}
 	QCC_DB_LIB
 	QCC_IO_LIB
 	QCC_GL_LIB 
-	
+	 ${PCL_LIBRARIES}
 	#QCORE_IO_PLUGIN
 	)
 
 # Qt
-target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL  ${PCL_LIBRARIES})
 
 if (WIN32)
-	target_link_libraries( ${PROJECT_NAME} Qt5::WinMain )
+	target_link_libraries( ${PROJECT_NAME} Qt5::WinMain  ${PCL_LIBRARIES})
 endif()

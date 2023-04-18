@@ -41,6 +41,11 @@
 #include "ccviewer.h"
 #include "ccViewerApplication.h"
 
+//add by yaoli  test
+//pcl
+#include <pcl/filters/passthrough.h>
+#include <pcl/io/pcd_io.h>
+
 
 int main(int argc, char *argv[])
 {
