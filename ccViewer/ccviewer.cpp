@@ -103,6 +103,8 @@ ccViewer::ccViewer(QWidget *parent, Qt::WindowFlags flags)
 	connect(m_glWindow,								&ccGLWindow::entitySelectionChanged,	this,	&ccViewer::selectEntity);
 	connect(m_glWindow,								&ccGLWindow::exclusiveFullScreenToggled,this,	&ccViewer::onExclusiveFullScreenToggled);
 	
+	//add new function
+	 connect(ui.actionopenPCD, &QAction::triggered, this, &ccViewer::openPCDFile);
 	//"Options" menu
 	connect(ui.actionDisplayParameters,				&QAction::triggered,					this,	&ccViewer::showDisplayParameters);
 	connect(ui.actionEditCamera,					&QAction::triggered,					this,	&ccViewer::doActionEditCamera);
@@ -412,7 +414,6 @@ bool ccViewer::checkForLoadedEntities()
 		params.displayCross = loadedEntities;
 		m_glWindow->setDisplayParameters(params);
 	}
-
 	return loadedEntities;
 }
 
@@ -466,73 +467,73 @@ void ccViewer::addToDB(QStringList filenames)
 
 	bool scaleAlreadyDisplayed = false;
 
-	//FileIOFilter::LoadParameters parameters;
-	//parameters.alwaysDisplayLoadDialog = false;
-	//parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
-	//parameters.parentWidget = this;
+	FileIOFilter::LoadParameters parameters;
+	parameters.alwaysDisplayLoadDialog = false;
+	parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
+	parameters.parentWidget = this;
 
-	//const ccOptions& options = ccOptions::Instance();
-	//FileIOFilter::ResetSesionCounter();
+	const ccOptions& options = ccOptions::Instance();
+	FileIOFilter::ResetSesionCounter();
 
-	//for (int i = 0; i < filenames.size(); ++i)
-	//{
-	//	CC_FILE_ERROR result = CC_FERR_NO_ERROR;
-	//	ccHObject* newGroup = FileIOFilter::LoadFromFile(filenames[i], parameters, result);
+	for (int i = 0; i < filenames.size(); ++i)
+	{
+		CC_FILE_ERROR result = CC_FERR_NO_ERROR;
+		ccHObject* newGroup = FileIOFilter::LoadFromFile(filenames[i], parameters, result);
 
-	//	if (newGroup)
-	//	{
-	//		if (!options.normalsDisplayedByDefault)
-	//		{
-	//			//disable the normals on all loaded clouds!
-	//			ccHObject::Container clouds;
-	//			newGroup->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-	//			for (ccHObject* cloud : clouds)
-	//			{
-	//				if (cloud)
-	//				{
-	//					static_cast<ccGenericPointCloud*>(cloud)->showNormals(false);
-	//				}
-	//			}
-	//		}
+		if (newGroup)
+		{
+			if (!options.normalsDisplayedByDefault)
+			{
+				//disable the normals on all loaded clouds!
+				ccHObject::Container clouds;
+				newGroup->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+				for (ccHObject* cloud : clouds)
+				{
+					if (cloud)
+					{
+						static_cast<ccGenericPointCloud*>(cloud)->showNormals(false);
+					}
+				}
+			}
 
-	//		addToDB(newGroup);
+			addToDB(newGroup);
 
-	//		if (!scaleAlreadyDisplayed)
-	//		{
-	//			for (unsigned i = 0; i < newGroup->getChildrenNumber(); ++i)
-	//			{
-	//				ccHObject* ent = newGroup->getChild(i);
-	//				if (ent->isA(CC_TYPES::POINT_CLOUD))
-	//				{
-	//					ccPointCloud* pc = static_cast<ccPointCloud*>(ent);
-	//					if (pc->hasScalarFields())
-	//					{
-	//						pc->setCurrentDisplayedScalarField(0);
-	//						pc->showSFColorsScale(true);
-	//						scaleAlreadyDisplayed=true;
-	//					}
-	//				}
-	//				else if (ent->isKindOf(CC_TYPES::MESH))
-	//				{
-	//					ccGenericMesh* mesh = static_cast<ccGenericMesh*>(ent);
-	//					if (mesh->hasScalarFields())
-	//					{
-	//						mesh->showSF(true);
-	//						scaleAlreadyDisplayed=true;
-	//						ccPointCloud* pc = static_cast<ccPointCloud*>(mesh->getAssociatedCloud());
-	//						pc->showSFColorsScale(true);
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//	
-	//	if (result == CC_FERR_CANCELED_BY_USER)
-	//	{
-	//		//stop importing the file if the user has cancelled the current process!
-	//		break;
-	//	}
-	//}
+			if (!scaleAlreadyDisplayed)
+			{
+				for (unsigned i = 0; i < newGroup->getChildrenNumber(); ++i)
+				{
+					ccHObject* ent = newGroup->getChild(i);
+					if (ent->isA(CC_TYPES::POINT_CLOUD))
+					{
+						ccPointCloud* pc = static_cast<ccPointCloud*>(ent);
+						if (pc->hasScalarFields())
+						{
+							pc->setCurrentDisplayedScalarField(0);
+							pc->showSFColorsScale(true);
+							scaleAlreadyDisplayed=true;
+						}
+					}
+					else if (ent->isKindOf(CC_TYPES::MESH))
+					{
+						ccGenericMesh* mesh = static_cast<ccGenericMesh*>(ent);
+						if (mesh->hasScalarFields())
+						{
+							mesh->showSF(true);
+							scaleAlreadyDisplayed=true;
+							ccPointCloud* pc = static_cast<ccPointCloud*>(mesh->getAssociatedCloud());
+							pc->showSFColorsScale(true);
+						}
+					}
+				}
+			}
+		}
+		
+		if (result == CC_FERR_CANCELED_BY_USER)
+		{
+			//stop importing the file if the user has cancelled the current process!
+			break;
+		}
+	}
 
 	checkForLoadedEntities();
 }
@@ -540,7 +541,6 @@ void ccViewer::addToDB(QStringList filenames)
 void ccViewer::addToDB(ccHObject* entity)
 {
 	assert(entity && m_glWindow);
-
 	entity->setDisplay_recursive(m_glWindow);
 
 	ccHObject* currentRoot = m_glWindow->getSceneDB();
@@ -563,8 +563,76 @@ void ccViewer::addToDB(ccHObject* entity)
 	{
 		m_glWindow->setSceneDB(entity);
 	}
-
 	checkForLoadedEntities();
+
+
+}
+
+
+
+int ccViewer::openPCDFile()
+{
+	//获取当前场景的根节点对象
+	ccHObject* currentRoot = m_glWindow->getSceneDB();
+	if (currentRoot)
+	{
+		m_selectedObject = nullptr;//将选中的对象设置为空
+		m_glWindow->setSceneDB(nullptr);//将场景的根节点设置为空
+		m_glWindow->redraw();// 刷新OpenGL窗口
+		delete currentRoot;// 释放当前根节点对象的内存
+		currentRoot = nullptr;// 将当前根节点对象指针设为空
+	}
+
+	typedef pcl::PCLPointCloud2 PCLCloud;
+	PCLCloud::Ptr cloud_ptr_in(new PCLCloud);
+
+	QString filename = QFileDialog::getOpenFileName(this, tr("Open point cloud"), "./data/", tr("Point cloud data (*.pcd *.ply)"));
+
+	std::cout<<("File chosen: %s\n", filename.toStdString().c_str());
+
+	if (filename.isEmpty())
+		return -1;
+
+	int return_status;
+	if (filename.endsWith(".pcd", Qt::CaseInsensitive))
+		return_status = pcl::io::loadPCDFile(filename.toStdString(), *cloud_ptr_in);
+	else
+		return_status = pcl::io::loadPLYFile(filename.toStdString(), *cloud_ptr_in);
+
+	if (return_status != 0)
+	{
+		PCL_ERROR("Error reading point cloud %s\n", filename.toStdString().c_str());
+		return -1;
+	}
+
+	// PCL可视化测试
+	//pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+	//pcl::fromPCLPointCloud2(*cloud_ptr_in, *cloud);
+
+	//pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
+	//viewer->setBackgroundColor(0, 0, 0);
+	//viewer->addPointCloud<pcl::PointXYZ>(cloud, "sample cloud");
+
+	//while (!viewer->wasStopped()) {
+	//	viewer->spinOnce(100);
+	//	boost::this_thread::sleep(boost::posix_time::microseconds(1000000));
+	//}
+
+	//convert to CC cloud
+	std::cout << "convert to CC cloud" << std::endl;
+	// 将PCL点云数据转化为ccPointCloud格式，并将其保存到ccCloud指针中
+	ccPointCloud* ccCloud = sm2ccConverter::sm2ccConverter(cloud_ptr_in).getCloud();
+	if (!ccCloud)
+	{
+		ccLog::Warning("[PCL] An error occurred while converting PCD cloud to CC cloud!");
+		return -1;
+	}
+	ccCloud->setName(QStringLiteral("unnamed"));
+	std::cout << "end convert to CC cloud" << std::endl;
+	addToDB(ccCloud);// 将ccCloud添加到ccViewer的数据库中，并显示出来
+	show();
+	
+	return 1;
 }
 
 void ccViewer::showDisplayParameters()

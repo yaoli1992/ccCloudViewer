@@ -31,6 +31,41 @@
 //System
 #include <set>
 
+// add by particle
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/io/ply_io.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/filter.h>
+#include <pcl/filters/voxel_grid.h>
+#include <QFileDialog>
+
+//add by particle open PCD file 
+#include <FileIOFilter.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
+// add by particle 实现了PCL中点云的数据格式到CC中定义的点云格式的转换
+#include <pclutils/PCLConv.h>
+#include <pclutils/sm2cc.h>
+#include <pclutils/cc2sm.h>
+
+//
+#include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/visualization/cloud_viewer.h>
+#include <boost/thread/thread.hpp>
+
+#include "pcl/common/transforms.h"  
+#include "pcl/conversions.h"
+#include <pcl/PCLPointCloud2.h>
+
+//qCC_db
+#include <ccPointCloud.h>
+#include <ccGBLSensor.h>
+#include <ccHObjectCaster.h>
+
+
 class ccGLWindow;
 class ccHObject;
 class Mouse3DInput;
@@ -64,6 +99,9 @@ public slots:
 	void addToDB(QStringList filenames);
 
 protected slots:
+
+	//// add by particle open PCD file 
+	int openPCDFile();
 
 	//! Shows display parameters dialog
 	void showDisplayParameters();

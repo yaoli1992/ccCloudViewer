@@ -44,6 +44,7 @@ find_package(Qt5 COMPONENTS Core Gui Widgets OpenGL OpenGLExtensions REQUIRED)
 # Libs requested by both qCC & ccViewer
 add_subdirectory( ./CC )
 add_subdirectory( ./common )
+add_subdirectory( ./pclutils )
 
 add_subdirectory( ./CCFbo )
 add_subdirectory( ./qCC_db ) # must always be included after CCFbo (dependency)
@@ -67,12 +68,17 @@ include_directories( ${CC_CORE_LIB_SOURCE_DIR}/src )
 include_directories( ${COMMON_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/common)
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/pclutils)
+
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 #include_directories( ${CloudComparePlugins_SOURCE_DIR} )
 #MESSAGE(${CloudComparePlugins_SOURCE_DIR})
 
 file( GLOB header_list_common  common/*.h )
 file( GLOB source_list_common  common/*.cpp )
+
+file( GLOB header_list_pclutils  pclutils/*.h )
+file( GLOB source_list_pclutils  pclutils/*.cpp )
 
 file( GLOB header_list  ccViewer/*.h )
 file( GLOB source_list  ccViewer/*.cpp )
@@ -102,7 +108,8 @@ if( TRUE )
 
 	#to get rid of the (system) console
 	add_executable( ${PROJECT_NAME} WIN32 ${header_list} ${source_list} ${generated_ui_list} ${generated_qrc_list} ${rc_list}
-	                                      ${header_list_common} ${source_list_common} ${ui_list_common})
+	                                      ${header_list_common} ${source_list_common} ${ui_list_common} 
+										  ${header_list_pclutils} ${source_list_pclutils} )
 elseif( APPLE )
 	add_executable( ${PROJECT_NAME} MACOSX_BUNDLE ${header_list} ${source_list} ${generated_ui_list} ${generated_qrc_list} ${rc_list})
 else()
